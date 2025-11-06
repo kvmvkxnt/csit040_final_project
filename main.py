@@ -1,6 +1,15 @@
 import pandas as pd
+import requests
 import seaborn as sns
 from matplotlib import pyplot as plt
+
+url = "https://raw.githubusercontent.com/kvmvkxnt/csit040_final_project/refs/heads/main/mall_kiosk.csv"
+response = requests.get(url)
+
+with open("mall_kiosk.csv", "wb") as f:
+    f.write(response.content)
+
+print("File downloaded successfully")
 
 df = pd.read_csv("./mall_kiosk.csv")
 
