@@ -1,7 +1,7 @@
 *.spec
 build/
 dist/
-*.csv
+sample.csv
 .venv/
 venv/
 .DS_Store
