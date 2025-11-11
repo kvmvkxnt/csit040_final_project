@@ -68,10 +68,16 @@ Or even download pre-built. To build an executable for your system, follow next 
 
 5. Build an executable
 
-- macOs/Linux/Windows:
+- macOs/Linux:
 
 ```bash
 pyinstaller --onedir --windowed --noconfirm --clean --noupx main.py
+```
+
+- Windows:
+
+```powershell
+pyinstaller --onefile --windowed --noconfirm --clean --noupx main.py
 ```
 
 Executable will be located in `dist/` directory and you can launch it from here.
@@ -83,3 +89,4 @@ Otherwise, download pre-built executable from [Releases](link).
   Download macOs release for your system, unzip and just drag the .app to your Applications
   folder.
 - Windows:
+  Download Windows release for your system, and just run the executable.
