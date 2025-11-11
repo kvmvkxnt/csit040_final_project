@@ -4,3 +4,4 @@ dist/
 *.csv
 .venv/
 venv/
+.DS_Store
