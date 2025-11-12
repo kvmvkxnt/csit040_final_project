@@ -63,15 +63,30 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+On some systems you may encounter issues with installations. To finish installation
+of required packages, usually the following command solves the problem:
+
+```bash
+pip install seaborn pandas PyQt5 pyinstaller
+```
+
 From now on, you can launch the program with `python main.py` or build an executable.
 Or even download pre-built. To build an executable for your system, follow next steps.
+
+**IMPORTANT NOTE:** If on Linux you experience troubles with installing `PyQt5`, try
+running this command:
+
+```bash
+sudo apt update && sudo apt upgrade
+sudo apt install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools build-essential
+```
 
 5. Build an executable
 
 - macOs/Linux:
 
 ```bash
-pyinstaller --onedir --windowed --noconfirm --clean --noupx main.py
+pyinstaller --onedir --windowed --noconfirm --clean --noupx --name MallAnalyzer main.py
 ```
 
 - Windows:
@@ -81,7 +96,7 @@ pyinstaller --onefile --windowed --noconfirm --clean --noupx main.py
 ```
 
 Executable will be located in `dist/` directory and you can launch it from here.
-Otherwise, download pre-built executable from [Releases](link).
+Otherwise, download pre-built executable from [Releases](https://github.com/kvmvkxnt/csit040_final_project/releases/latest).
 
 6. Using Github Releases.
 
@@ -89,4 +104,7 @@ Otherwise, download pre-built executable from [Releases](link).
   Download macOs release for your system, unzip and just drag the .app to your Applications
   folder.
 - Windows:
-  Download Windows release for your system, and just run the executable.
+  Download Windows release for your system, unzip and just run the executable.
+- Linux:
+  Who creates binaries for linux? Be a man, build yourself from source or just use
+  python.

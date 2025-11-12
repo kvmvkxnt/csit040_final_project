@@ -4,4 +4,5 @@ dist/
 sample.csv
 .venv/
 venv/
+.venv_x86/
 .DS_Store
