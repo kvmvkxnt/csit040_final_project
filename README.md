@@ -78,8 +78,11 @@ running this command:
 
 ```bash
 sudo apt update && sudo apt upgrade
-sudo apt install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools build-essential
+sudo apt install python3-pyqt5
 ```
+
+And edit the `.venv/pyvenv.cfg` line `include-system-site-packages` from `false`
+to `true`
 
 5. Build an executable
 
