@@ -86,16 +86,16 @@ to `true`
 
 5. Build an executable
 
-- macOs/Linux:
+- macOs:
 
 ```bash
-pyinstaller --onedir --windowed --noconfirm --clean --noupx --name MallAnalyzer main.py
+pyinstaller MallAnalyzer.spec --onedir
 ```
 
-- Windows:
+- Windows/Linux:
 
-```powershell
-pyinstaller --onefile --windowed --noconfirm --clean --noupx main.py
+```bash
+pyinstaller MallAnalyzer.spec --onefile
 ```
 
 Executable will be located in `dist/` directory and you can launch it from here.
@@ -104,8 +104,7 @@ Otherwise, download pre-built executable from [Releases](https://github.com/kvmv
 6. Using Github Releases.
 
 - macOs:
-  Download macOs release for your system, unzip and just drag the .app to your Applications
-  folder.
+  Download macOs release for your system, unzip and launch the .app.
 - Windows:
   Download Windows release for your system, unzip and just run the executable.
 - Linux:
