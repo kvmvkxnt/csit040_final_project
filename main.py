@@ -47,12 +47,12 @@ class MallAnalyzer(QWidget):
         self.df = None
         self.model = None
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self.info_label = QLabel("📊 Upload your mall visitor dataset (.csv)")
         self.info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout.addWidget(self.info_label)
+        self.main_layout.addWidget(self.info_label)
 
         self.load_button = QPushButton("Load CSV File")
         self.sample_button = QPushButton("Download Sample data")
@@ -68,17 +68,17 @@ class MallAnalyzer(QWidget):
         button_row.addWidget(self.sample_button)
         button_row.addSpacing(10)
 
-        self.layout.addLayout(button_row)
-        self.layout.addWidget(self.predict_button)
+        self.main_layout.addLayout(button_row)
+        self.main_layout.addWidget(self.predict_button)
 
         self.result_box = QTextEdit()
         self.result_box.setReadOnly(True)
-        self.layout.addWidget(self.result_box)
+        self.main_layout.addWidget(self.result_box)
 
         self.show_plot_button = QPushButton("Show Visualizations")
         self.show_plot_button.clicked.connect(self.show_plots)
         self.show_plot_button.setEnabled(False)
-        self.layout.addWidget(self.show_plot_button)
+        self.main_layout.addWidget(self.show_plot_button)
 
     def load_csv(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -123,19 +123,24 @@ class MallAnalyzer(QWidget):
         self.analyze_data()
 
     def train_ml_model(self):
-        df = self.df.copy()
+        if self.df is None:
+            return
+        df: pd.DataFrame = pd.DataFrame(self.df.copy())
 
         # Columns we'll use as features (order matters)
         feature_cols = ["Mall", "Age_Group", "Day", "Time"]
 
         # Build mapping encoders (LabelEncoder-like but with dict -> int)
-        encoders = {}
+        encoders: dict[str, dict[str, int]] = {}
         for col in feature_cols:
-            uniques = list(df[col].astype(str).unique())
+            series: pd.Series = df.loc[:, col].astype(str)
+            uniques = pd.unique(series)
+
             mapping = {val: idx for idx, val in enumerate(uniques)}
             encoders[col] = mapping
+
             # replace values with ints in df (use mapping)
-            df[col] = df[col].astype(str).map(mapping)
+            df.loc[:, col] = series.map(lambda x: mapping[x]).astype(int)
 
         # Features and target
         X = df[feature_cols].copy()
@@ -167,6 +172,8 @@ class MallAnalyzer(QWidget):
         enc = ml_data["encoders"]
         feature_names = ml_data["feature_names"]  # ordered list
 
+        if self.df is None:
+            return
         df = self.df.copy()
 
         # Build aggregated test rows (one row per unique combination)
@@ -206,7 +213,7 @@ class MallAnalyzer(QWidget):
             return str(value)
 
         result = f"""
-🤖 **AI Recommendation Engine Result**
+🤖 AI Recommendation Engine Result
 
 🏬 Best Mall → {inv_lookup(enc["Mall"], int(best["Mall"]))}
 📅 Best Day → {inv_lookup(enc["Day"], int(best["Day"]))}
@@ -219,17 +226,30 @@ class MallAnalyzer(QWidget):
         self.result_box.moveCursor(QTextCursor.End)
 
     def analyze_data(self):
-        df = self.df
+        if self.df is None:
+            return
+        df: pd.DataFrame = pd.DataFrame(self.df)
         self.show_plot_button.setEnabled(True)
 
-        mall_spending = (
-            df.groupby("Mall")["Total_Bill"].mean().sort_values(ascending=False)
+        mall_spending: pd.Series = (
+            df.loc[:, ["Mall", "Total_Bill"]]
+            .groupby("Mall")["Total_Bill"]
+            .mean()
+            .sort_values(ascending=False)
         )
-        day_spending = (
-            df.groupby("Day")["Total_Bill"].mean().sort_values(ascending=False)
+
+        day_spending: pd.Series = (
+            df.loc[:, ["Day", "Total_Bill"]]
+            .groupby("Day")["Total_Bill"]
+            .mean()
+            .sort_values(ascending=False)
         )
-        time_spending = (
-            df.groupby("Time")["Total_Bill"].mean().sort_values(ascending=False)
+
+        time_spending: pd.Series = (
+            df.loc[:, ["Time", "Total_Bill"]]
+            .groupby("Time")["Total_Bill"]
+            .mean()
+            .sort_values(ascending=False)
         )
 
         best_mall = mall_spending.idxmax()
@@ -258,10 +278,11 @@ class MallAnalyzer(QWidget):
         # 1. Average Spending By Mall
         plt.figure(figsize=(8, 5))
         mall_means = df.groupby("Mall")["Total_Bill"].mean()
-        cmap = plt.cm.coolwarm
+        cmap = plt.colormaps.get_cmap("coolwarm")
         colors = cmap(np.linspace(0, 1, len(mall_means)))
+        mall_heights = np.asarray(mall_means.values, dtype=float)
 
-        plt.bar(mall_means.index, mall_means.values, color=colors)
+        plt.bar(mall_means.index, mall_heights, color=colors)
         plt.title("Average Spending by Mall")
         plt.xlabel("Mall")
         plt.ylabel("Average Total Bill")
@@ -272,10 +293,10 @@ class MallAnalyzer(QWidget):
         # 2. Average Spending By Day
         plt.figure(figsize=(8, 5))
         day_means = df.groupby("Day")["Total_Bill"].mean()
-        cmap = plt.cm.viridis
+        cmap = plt.colormaps.get_cmap("viridis")
         colors = cmap(np.linspace(0, 1, len(day_means)))
-        # sns.barplot(x="Day", y="Total_Bill", data=df, palette="viridis", ci=None)
-        plt.bar(day_means.index, day_means.values, color=colors)
+        day_heights = np.asarray(day_means.values, dtype=float)
+        plt.bar(day_means.index, day_heights, color=colors)
         plt.title("Average Spending by Day of the Week")
         plt.xlabel("Day")
         plt.ylabel("Average Total Bill")
@@ -285,10 +306,10 @@ class MallAnalyzer(QWidget):
         # 3. Average Spending By Time of the Day
         plt.figure(figsize=(6, 5))
         time_means = df.groupby("Time")["Total_Bill"].mean()
-        cmap = plt.cm.plasma
+        cmap = plt.colormaps.get_cmap("plasma")
         colors = cmap(np.linspace(0, 1, len(time_means)))
-        # sns.barplot(x="Time", y="Total_Bill", data=df, palette="plasma", ci=None)
-        plt.bar(time_means.index, time_means.values, color=colors)
+        time_heights = np.asarray(time_means.values, dtype=float)
+        plt.bar(time_means.index, time_heights, color=colors)
         plt.title("Average Spending by Time of Day")
         plt.xlabel("Time")
         plt.ylabel("Average Total Bill")
@@ -304,15 +325,13 @@ class MallAnalyzer(QWidget):
         x = np.arange(len(times))
         width = 0.8 / len(days)
 
-        cmap = plt.cm.cividis
+        cmap = plt.colormaps.get_cmap("cividis")
         colors = cmap(np.linspace(0, 1, len(days)))
 
         for i, day in enumerate(days):
             plt.bar(x + i * width, grouped[day], width, label=day, color=colors[i])
-        # sns.barplot(
-        #     x="Time", y="Total_Bill", hue="Day", data=df, palette="mako", ci=None
-        # )
-        plt.xticks(x + width * (len(days) - 1) / 2, times)
+        xtick_labels = [str(t) for t in times]
+        plt.xticks(x + width * (len(days) - 1) / 2, xtick_labels)
         plt.title("Average Spending by Time of Day and Day")
         plt.xlabel("Time")
         plt.ylabel("Average Total Bill")
@@ -324,11 +343,14 @@ class MallAnalyzer(QWidget):
         pivot = df.groupby(["Age_Group", "Time"])["Total_Bill"].mean().unstack()
 
         plt.figure(figsize=(7, 5))
-        plt.imshow(pivot, cmap=plt.cm.viridis, aspect="auto")
+        plt.imshow(pivot, cmap=plt.colormaps.get_cmap("viridis"), aspect="auto")
         plt.colorbar(label="Average Total Bill")
 
-        plt.xticks(np.arange(len(pivot.columns)), pivot.columns)
-        plt.yticks(np.arange(len(pivot.index)), pivot.index)
+        xtick_labels = [str(c) for c in pivot.columns]
+        ytick_labels = [str(r) for r in pivot.index]
+
+        plt.xticks(np.arange(len(pivot.columns)), xtick_labels)
+        plt.yticks(np.arange(len(pivot.index)), ytick_labels)
         plt.title("Average Spending by Age Group and Time of Day")
 
         for i in range(len(pivot.index)):
@@ -340,9 +362,10 @@ class MallAnalyzer(QWidget):
                     f"{value:.1f}",
                     ha="center",
                     va="center",
-                    color="white" if value > pivot.values.mean() else "black",
+                    color="white"
+                    if value > pivot.to_numpy(dtype=float).mean()
+                    else "black",
                 )
-        # sns.heatmap(pivot, annot=True, cmap="crest", fmt=".1f")
         plt.tight_layout()
         plt.show()
 
