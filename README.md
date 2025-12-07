@@ -81,7 +81,11 @@ Set-ExecutionPolicy ByPass  # After this command, type A
 
 - macOs/Linux:
 
+If you are using Mac with M-series chip, you need to use `/opt/homebrew/bin/python3.13`.
+If you are using Mac with Inter chip, you need to use `/usr/local/bin/python3.13`
+
 ```bash
+/opt/homebrew/bin/python3.13 -m venv .venv
 source .venv/bin/activate
 ```
 
