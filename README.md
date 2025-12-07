@@ -26,28 +26,56 @@ and engagement.
 | Time of the day | Period of visit (Morning, Afternoon, Evening) |
 | Total Bill      | Total amount spent during the visit           |
 
+## Presequities
+
+Ensure you have git installed. On UNIX-based systems like MacOS, Linux, just
+open your terminal app, and then run `git` command. If you see a long output,
+then you have git installed. If you're on windows, open "PowerShell" terminal
+(you can use search), and then do the same. You can install git from its
+[official website](https://git-scm.com/install/windows).
+
+And of course, ensure you have `python` installed.
+
+On MacOS:
+
+- Open `Terminal` application.
+- Try running `python3 --version`.
+  - If you see version below "3.13", you need to install python3 using `brew`.
+    To install brew, follow the instruction on [Homebrew](https://brew.sh/)
+    website. After you have installed brew, run `brew install python3@13`.
+    This will install the required version of python to your system.
+
+On Windows:
+
+- Open `PowerShell` application. Use search tool to find it.
+- Try running `python --version`.
+  - If python is not installed, you will be redirected to Microsoft store to
+    install it. Just install it, and you're good to go.
+
+On Linux:
+
+- If you use Linux, i don't have to explain you what to do.
+
 ## Installation & Setup
 
-Follow these steps to run the project locally.
+Follow these steps to run the project locally. On MacOs, use the `Terminal` app,
+on Windows, use `PowerShell` app. Make sure to launch the `PowerShell` with
+admin rights. Just copy and paste each command.
 
-1. Clone the repository
+Clone the repository
 
 ```bash
 git clone https://github.com/kvmvkxnt/csit040_final_project
 cd csit040_final_project
 ```
 
-2. Create a virtual environment
-
-```bash
-python -m venv .venv
-```
-
-3. Activate the virtual environment
+Create and activate virtual environment
 
 - Windows:
 
-```powershell
+```bash
+python -m venv .venv
+Set-ExecutionPolicy ByPass  # After this command, type A
 .venv\Scripts\activate
 ```
 
@@ -57,24 +85,19 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-4. Install dependencies
+After the activation, you should see `(.venv)` before your command prompt.
+
+Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-On some systems you may encounter issues with installations. To finish installation
-of required packages, usually the following command solves the problem:
-
-```bash
-pip install seaborn pandas PyQt5 pyinstaller
-```
-
 From now on, you can launch the program with `python main.py` or build an executable.
 Or even download pre-built. To build an executable for your system, follow next steps.
 
-**IMPORTANT NOTE:** If on Linux you experience troubles with installing `PyQt5`, try
-running this command:
+**IMPORTANT NOTE:** If on Linux you experience troubles with installing `PyQt5`,
+try running this command:
 
 ```bash
 sudo apt update && sudo apt upgrade
@@ -84,24 +107,24 @@ sudo apt install python3-pyqt5
 And edit the `.venv/pyvenv.cfg` line `include-system-site-packages` from `false`
 to `true`
 
-5. Build an executable
+Build an executable (make sure your venv is activated)
 
-- macOs:
+- macOs/Linux:
 
 ```bash
-pyinstaller MallAnalyzer.spec --onedir
+sh build.sh
 ```
 
-- Windows/Linux:
+- Windows:
 
 ```bash
-pyinstaller MallAnalyzer.spec --onefile
+.\build.ps1
 ```
 
 Executable will be located in `dist/` directory and you can launch it from here.
 Otherwise, download pre-built executable from [Releases](https://github.com/kvmvkxnt/csit040_final_project/releases/latest).
 
-6. Using Github Releases.
+Using Github Releases.
 
 - macOs:
   Download macOs release for your system, unzip and launch the .app.
